@@ -1,7 +1,10 @@
 const CACHE_NAME = 'salus-calculator-v1';
 const urlsToCache = [
+  './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './profit.png',
+  './icon.webp'
 ];
 
 // Install event - cache resources
