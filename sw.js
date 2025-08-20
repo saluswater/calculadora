@@ -1,6 +1,6 @@
 const CACHE_NAME = 'salus-calculator-v1';
 const urlsToCache = [
-  './calculadora-salus.html',
+  './index.html',
   './manifest.json'
 ];
 

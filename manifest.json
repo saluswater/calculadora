@@ -2,7 +2,7 @@
   "name": "SALUS ROI Calculator",
   "short_name": "SALUS Calculator",
   "description": "Calculadora de ROI para sistemas de purificação de água SALUS",
-  "start_url": "./calculadora-salus.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#00B4FF",
   "theme_color": "#00B4FF",
