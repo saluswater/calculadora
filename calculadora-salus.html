@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SALUS | ROI Calculator</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="SALUS Calculator">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SALUS Calculator">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#00B4FF">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='90' fill='%2300B4FF'/%3E%3Ctext x='100' y='120' text-anchor='middle' fill='white' font-family='Arial' font-size='60' font-weight='300'%3ES%3C/text%3E%3C/svg%3E">
+    
+    <!-- Splash Screen for iOS -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-startup-image" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect width='375' height='812' fill='%2300B4FF'/%3E%3Ctext x='187.5' y='400' text-anchor='middle' fill='white' font-family='Arial' font-size='48' font-weight='300'%3ESALUS%3C/text%3E%3Ctext x='187.5' y='450' text-anchor='middle' fill='white' font-family='Arial' font-size='18'%3ECalculadora ROI%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --salus-blue: #00B4FF;
+            --salus-red: #D81F17;
+            --primary-bg: #ffffff;
+            --secondary-bg: #f8fafc;
+            --text-primary: #0f0f0f;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border: #1f1f1f;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Main App Container */
+        .app {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* iOS Safari fallback for dvh */
+        .app {
+            min-height: calc(var(--vh, 1vh) * 100);
+        }
+
+        @supports (height: 100dvh) {
+            .app {
+                min-height: 100dvh;
+            }
+        }
+
+        /* Controls Header */
+        .controls {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .control-button {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .control-button:hover {
+            transform: scale(1.05);
+            background: var(--salus-blue);
+            color: white;
+        }
+
+        /* Main Container */
+        .main {
+            flex: 1;
+            padding: 100px 40px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 40px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Brand */
+        .brand {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 56px;
+            font-weight: 300;
+            letter-spacing: 12px;
+            color: var(--salus-blue);
+            margin-bottom: 16px;
+        }
+
+        .tagline {
+            font-size: 22px;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* Calculator */
+        .calculator {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 35px;
+            padding: 40px 30px;
+            background: var(--secondary-bg);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-label {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .slider-container {
+            position: relative;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            background: var(--primary-bg);
+            border-radius: 16px;
+            padding: 0 35px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .slider {
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            border-radius: 1px;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .slider::-webkit-slider-track {
+            background: transparent;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--salus-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            border: 5px solid var(--primary-bg);
+            box-shadow: 0 4px 20px rgba(0, 180, 255, 0.3);
+            -webkit-transition: all 0.2s ease;
+            transition: all 0.2s ease;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            -webkit-transform: scale(1.15) translateZ(0);
+            transform: scale(1.15) translateZ(0);
+            box-shadow: 0 6px 25px rgba(0, 180, 255, 0.4);
+        }
+
+        /* Firefox slider support */
+        .slider::-moz-range-track {
+            background: var(--border);
+            height: 2px;
+            border-radius: 1px;
+            border: none;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            background: var(--salus-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 5px solid var(--primary-bg);
+            box-shadow: 0 4px 20px rgba(0, 180, 255, 0.3);
+        }
+
+        .slider-value {
+            position: absolute;
+            right: 35px;
+            font-size: 32px;
+            font-weight: 400;
+            color: var(--text-primary);
+            min-width: 140px;
+            text-align: right;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            background: linear-gradient(135deg, var(--salus-blue) 0%, #0099dd 100%);
+            border-radius: 24px;
+            padding: 50px 40px;
+            color: white;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 180, 255, 0.2);
+        }
+
+        .results-title {
+            font-size: 26px;
+            font-weight: 400;
+            margin-bottom: 35px;
+            text-align: center;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .savings-display {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .savings-amount {
+            font-size: 64px;
+            font-weight: 200;
+            line-height: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .savings-period {
+            font-size: 18px;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        /* Highlighted Savings Cards */
+        .savings-highlights {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .savings-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            padding: 28px 24px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .savings-card-value {
+            font-size: 38px;
+            font-weight: 300;
+            line-height: 1;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .savings-card-label {
+            font-size: 16px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .monthly-highlight {
+            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .monthly-highlight .savings-card-value {
+            font-size: 44px;
+            font-weight: 400;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Breakdown */
+        .breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 18px;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 12px;
+            padding-top: 26px;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .breakdown-label {
+            opacity: 0.9;
+        }
+
+        .breakdown-value {
+            font-weight: 500;
+            font-size: 19px;
+        }
+
+        /* iPad Optimizations */
+        @media screen and (min-width: 768px) {
+            .main {
+                padding: 120px 60px 80px;
+                gap: 50px;
+            }
+
+            .controls {
+                top: 50px;
+                right: 50px;
+            }
+
+            .calculator {
+                gap: 45px;
+            }
+
+            .input-panel {
+                padding: 45px 35px;
+                gap: 40px;
+            }
+
+            .results-panel {
+                padding: 60px 50px;
+            }
+        }
+
+        /* Large iPad Pro */
+        @media screen and (min-width: 1024px) {
+            .main {
+                padding: 140px 80px 100px;
+                gap: 60px;
+            }
+
+            .controls {
+                top: 60px;
+                right: 60px;
+            }
+
+            .calculator {
+                max-width: 1000px;
+                gap: 50px;
+            }
+        }
+
+        /* Portrait iPad adjustments */
+        @media screen and (max-width: 1024px) and (orientation: portrait) {
+            .savings-highlights {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .savings-card {
+                padding: 24px 20px;
+            }
+
+            .savings-card-value {
+                font-size: 34px;
+            }
+
+            .monthly-highlight .savings-card-value {
+                font-size: 40px;
+            }
+        }
+
+        /* iOS Safari optimizations */
+        .slider {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .control-button {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* Touch optimizations */
+        @media (pointer: coarse) {
+            .slider::-webkit-slider-thumb {
+                width: 34px;
+                height: 34px;
+            }
+
+            .control-button {
+                width: 65px;
+                height: 65px;
+                font-size: 22px;
+            }
+
+            .slider-container {
+                padding: 0 20px;
+                min-height: 80px;
+            }
+
+            .slider {
+                height: 6px;
+            }
+        }
+
+        /* Mobile Optimizations (320px - 767px) */
+        @media screen and (max-width: 767px) {
+            .main {
+                padding: 80px 20px 40px;
+                gap: 30px;
+            }
+
+            .controls {
+                top: 20px;
+                right: 20px;
+                gap: 12px;
+            }
+
+            .control-button {
+                width: 50px;
+                height: 50px;
+                font-size: 16px;
+            }
+
+            .logo {
+                font-size: 40px;
+                letter-spacing: 6px;
+                margin-bottom: 12px;
+            }
+
+            .tagline {
+                font-size: 16px;
+            }
+
+            .brand {
+                margin-bottom: 15px;
+            }
+
+            .calculator {
+                gap: 25px;
+            }
+
+            .input-panel {
+                padding: 25px 20px;
+                gap: 25px;
+                border-radius: 20px;
+            }
+
+            .input-label {
+                font-size: 15px;
+                margin-bottom: 15px;
+            }
+
+            .slider-container {
+                height: 65px;
+                padding: 0 20px;
+                border-radius: 12px;
+            }
+
+            .slider-value {
+                font-size: 24px;
+                right: 20px;
+                min-width: 100px;
+            }
+
+            .results-panel {
+                padding: 30px 25px;
+                border-radius: 20px;
+            }
+
+            .results-title {
+                font-size: 18px;
+                margin-bottom: 25px;
+            }
+
+            .savings-amount {
+                font-size: 42px;
+                margin-bottom: 12px;
+            }
+
+            .savings-period {
+                font-size: 14px;
+            }
+
+            .savings-highlights {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 25px;
+            }
+
+            .savings-card {
+                padding: 20px 16px;
+                border-radius: 16px;
+            }
+
+            .savings-card-value {
+                font-size: 28px;
+                margin-bottom: 8px;
+            }
+
+            .monthly-highlight .savings-card-value {
+                font-size: 32px;
+            }
+
+            .savings-card-label {
+                font-size: 13px;
+            }
+
+            .breakdown {
+                gap: 12px;
+            }
+
+            .breakdown-item {
+                padding: 14px 0;
+                font-size: 15px;
+            }
+
+            .breakdown-value {
+                font-size: 16px;
+            }
+
+            .breakdown-item:last-child {
+                font-size: 16px;
+                padding-top: 18px;
+                margin-top: 8px;
+            }
+        }
+
+        /* Desktop Optimizations (1200px+) */
+        @media screen and (min-width: 1200px) {
+            body {
+                background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            }
+
+            .app {
+                max-width: 1400px;
+                margin: 20px auto;
+                border-radius: 20px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+                background: var(--primary-bg);
+                min-height: calc(100vh - 40px);
+            }
+
+            .main {
+                padding: 160px 100px 120px;
+                gap: 70px;
+                justify-content: flex-start;
+            }
+
+            .controls {
+                top: 80px;
+                right: 80px;
+            }
+
+            .calculator {
+                display: grid;
+                grid-template-columns: 1fr 500px;
+                gap: 80px;
+                max-width: 1200px;
+                align-items: start;
+            }
+
+            .input-panel {
+                padding: 60px 50px;
+                gap: 50px;
+            }
+
+            .results-panel {
+                padding: 70px 60px;
+                position: sticky;
+                top: 160px;
+            }
+
+            .logo {
+                font-size: 72px;
+                letter-spacing: 16px;
+            }
+
+            .tagline {
+                font-size: 24px;
+            }
+
+            .brand {
+                margin-bottom: 50px;
+            }
+        }
+
+        /* Ultra-wide Desktop (1440px+) */
+        @media screen and (min-width: 1440px) {
+            .calculator {
+                grid-template-columns: 1fr 600px;
+                gap: 100px;
+            }
+
+            .results-panel {
+                padding: 80px 70px;
+            }
+
+            .savings-amount {
+                font-size: 72px;
+            }
+
+            .savings-card-value {
+                font-size: 42px;
+            }
+
+            .monthly-highlight .savings-card-value {
+                font-size: 50px;
+            }
+        }
+
+        /* Language specific adjustments */
+        .lang-pt .input-label {
+            font-size: 19px;
+        }
+
+        .lang-en .input-label {
+            font-size: 20px;
+        }
+
+        @media screen and (max-width: 767px) {
+            .lang-pt .input-label,
+            .lang-en .input-label {
+                font-size: 15px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-group {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .input-group:nth-child(1) { animation-delay: 0.1s; }
+        .input-group:nth-child(2) { animation-delay: 0.2s; }
+        .input-group:nth-child(3) { animation-delay: 0.3s; }
+
+        .results-panel {
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .brand {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* Safe area support */
+        @supports (padding: env(safe-area-inset-top)) {
+            .main {
+                padding-top: max(100px, env(safe-area-inset-top) + 60px);
+                padding-bottom: max(60px, env(safe-area-inset-bottom) + 20px);
+                padding-left: max(40px, env(safe-area-inset-left) + 20px);
+                padding-right: max(40px, env(safe-area-inset-right) + 20px);
+            }
+
+            .controls {
+                top: max(40px, env(safe-area-inset-top) + 20px);
+                right: max(40px, env(safe-area-inset-right) + 20px);
+            }
+
+            @media screen and (max-width: 767px) {
+                .main {
+                    padding-top: max(80px, env(safe-area-inset-top) + 40px);
+                    padding-bottom: max(40px, env(safe-area-inset-bottom) + 20px);
+                    padding-left: max(20px, env(safe-area-inset-left) + 10px);
+                    padding-right: max(20px, env(safe-area-inset-right) + 10px);
+                }
+
+                .controls {
+                    top: max(20px, env(safe-area-inset-top) + 10px);
+                    right: max(20px, env(safe-area-inset-right) + 10px);
+                }
+            }
+
+            @media screen and (min-width: 768px) {
+                .main {
+                    padding-top: max(120px, env(safe-area-inset-top) + 80px);
+                    padding-bottom: max(80px, env(safe-area-inset-bottom) + 40px);
+                    padding-left: max(60px, env(safe-area-inset-left) + 40px);
+                    padding-right: max(60px, env(safe-area-inset-right) + 40px);
+                }
+
+                .controls {
+                    top: max(50px, env(safe-area-inset-top) + 30px);
+                    right: max(50px, env(safe-area-inset-right) + 30px);
+                }
+            }
+
+            @media screen and (min-width: 1024px) {
+                .main {
+                    padding-top: max(140px, env(safe-area-inset-top) + 100px);
+                    padding-bottom: max(100px, env(safe-area-inset-bottom) + 60px);
+                    padding-left: max(80px, env(safe-area-inset-left) + 60px);
+                    padding-right: max(80px, env(safe-area-inset-right) + 60px);
+                }
+
+                .controls {
+                    top: max(60px, env(safe-area-inset-top) + 40px);
+                    right: max(60px, env(safe-area-inset-right) + 40px);
+                }
+            }
+
+            @media screen and (min-width: 1200px) {
+                .main {
+                    padding-top: max(160px, env(safe-area-inset-top) + 120px);
+                    padding-bottom: max(120px, env(safe-area-inset-bottom) + 80px);
+                    padding-left: max(100px, env(safe-area-inset-left) + 80px);
+                    padding-right: max(100px, env(safe-area-inset-right) + 80px);
+                }
+
+                .controls {
+                    top: max(80px, env(safe-area-inset-top) + 60px);
+                    right: max(80px, env(safe-area-inset-right) + 60px);
+                }
+            }
+        }
+
+        /* Dark theme adjustments for desktop */
+        @media screen and (min-width: 1200px) {
+            [data-theme="dark"] body {
+                background: linear-gradient(135deg, var(--primary-bg) 0%, #000000 100%);
+            }
+
+            [data-theme="dark"] .app {
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            }
+        }
+    </style>
+</head>
+<body class="lang-pt">
+    <div class="app">
+        <header class="controls">
+            <button class="control-button" onclick="toggleLanguage()" aria-label="Toggle language" id="lang-toggle">
+                PT
+            </button>
+            <button class="control-button" onclick="toggleTheme()" aria-label="Toggle theme" id="theme-toggle">
+                🌙
+            </button>
+        </header>
+
+        <main class="main">
+            <section class="brand">
+                <h1 class="logo">SALUS</h1>
+                <p class="tagline" id="tagline">Tecnologia de Purificação de Água</p>
+            </section>
+
+            <section class="calculator">
+                <div class="input-panel">
+                    <div class="input-group">
+                        <label class="input-label" id="label-water">Gasto mensal com água engarrafada</label>
+                        <div class="slider-container">
+                            <input type="range" 
+                                class="slider" 
+                                min="50" 
+                                max="300" 
+                                value="150" 
+                                id="water-expense">
+                            <div class="slider-value" id="water-value">$150</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" id="label-cleaning">Produtos de limpeza mensais</label>
+                        <div class="slider-container">
+                            <input type="range" 
+                                class="slider" 
+                                min="30" 
+                                max="300" 
+                                value="100" 
+                                id="cleaning-expense">
+                            <div class="slider-value" id="cleaning-value">$100</div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" id="label-repair">Consertos anuais de eletrodomésticos</label>
+                        <div class="slider-container">
+                            <input type="range" 
+                                class="slider" 
+                                min="200" 
+                                max="2000" 
+                                value="1200" 
+                                id="repair-expense">
+                            <div class="slider-value" id="repair-value">$1,200</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-panel">
+                    <h3 class="results-title" id="results-title">Economia em 10 Anos</h3>
+                    
+                    <div class="savings-display">
+                        <div class="savings-amount" id="total-savings">$56,040</div>
+                        <div class="savings-period" id="savings-period">Total Economizado</div>
+                    </div>
+
+                    <div class="savings-highlights">
+                        <div class="savings-card monthly-highlight">
+                            <div class="savings-card-value" id="monthly-savings-highlight">$467</div>
+                            <div class="savings-card-label" id="monthly-label">Por Mês</div>
+                        </div>
+                        <div class="savings-card">
+                            <div class="savings-card-value" id="annual-savings-highlight">$5,604</div>
+                            <div class="savings-card-label" id="annual-label">Por Ano</div>
+                        </div>
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label" id="label-current">Custo anual atual:</span>
+                            <span class="breakdown-value" id="current-cost">$6,040</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label" id="label-salus">Sistema SALUS:</span>
+                            <span class="breakdown-value" id="salus-cost">$75/mês</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label" id="label-maintenance">Manutenção anual:</span>
+                            <span class="breakdown-value">$96/ano</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Simple variable declarations for iPad Safari compatibility
+        var translations = {
+            'pt': {
+                tagline: 'Tecnologia de Purificação de Água',
+                labelWater: 'Gasto mensal com água engarrafada',
+                labelCleaning: 'Produtos de limpeza mensais',
+                labelRepair: 'Consertos anuais de eletrodomésticos',
+                resultsTitle: 'Economia em 10 Anos',
+                savingsPeriod: 'Total Economizado',
+                monthlyLabel: 'Por Mês',
+                annualLabel: 'Por Ano',
+                labelCurrent: 'Custo anual atual:',
+                labelSalus: 'Sistema SALUS:',
+                labelMaintenance: 'Manutenção anual:',
+                salusCost: '$75/mês'
+            },
+            'en': {
+                tagline: 'Water Purification Technology',
+                labelWater: 'Monthly Bottled Water Expense',
+                labelCleaning: 'Monthly Cleaning Products',
+                labelRepair: 'Annual Appliance Repairs',
+                resultsTitle: '10-Year Savings',
+                savingsPeriod: 'Total Saved',
+                monthlyLabel: 'Per Month',
+                annualLabel: 'Per Year',
+                labelCurrent: 'Current Annual Cost:',
+                labelSalus: 'SALUS System:',
+                labelMaintenance: 'Annual Maintenance:',
+                salusCost: '$75/month'
+            }
+        };
+
+        var currentLang = 'pt';
+
+        // Theme Management - Simple function declaration for iPad Safari
+        function toggleTheme() {
+            var html = document.documentElement;
+            var button = document.getElementById('theme-toggle');
+            
+            if (html.hasAttribute('data-theme')) {
+                html.removeAttribute('data-theme');
+                button.textContent = '🌙';
+                try {
+                    localStorage.setItem('theme', 'light');
+                } catch(e) {}
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                button.textContent = '☀️';
+                try {
+                    localStorage.setItem('theme', 'dark');
+                } catch(e) {}
+            }
+        }
+
+        // Language Management - Simple function declaration
+        function toggleLanguage() {
+            currentLang = currentLang === 'pt' ? 'en' : 'pt';
+            var body = document.body;
+            var langButton = document.getElementById('lang-toggle');
+            
+            body.className = body.className.replace(/lang-\w+/, 'lang-' + currentLang);
+            langButton.textContent = currentLang.toUpperCase();
+            
+            updateLanguage();
+            try {
+                localStorage.setItem('language', currentLang);
+            } catch(e) {}
+        }
+
+        function updateLanguage() {
+            var t = translations[currentLang];
+            
+            document.getElementById('tagline').textContent = t.tagline;
+            document.getElementById('label-water').textContent = t.labelWater;
+            document.getElementById('label-cleaning').textContent = t.labelCleaning;
+            document.getElementById('label-repair').textContent = t.labelRepair;
+            document.getElementById('results-title').textContent = t.resultsTitle;
+            document.getElementById('savings-period').textContent = t.savingsPeriod;
+            document.getElementById('monthly-label').textContent = t.monthlyLabel;
+            document.getElementById('annual-label').textContent = t.annualLabel;
+            document.getElementById('label-current').textContent = t.labelCurrent;
+            document.getElementById('label-salus').textContent = t.labelSalus;
+            document.getElementById('label-maintenance').textContent = t.labelMaintenance;
+            document.getElementById('salus-cost').textContent = t.salusCost;
+        }
+
+        // Initialize saved preferences - Simple function
+        function initPreferences() {
+            try {
+                var savedTheme = localStorage.getItem('theme');
+                var themeButton = document.getElementById('theme-toggle');
+                
+                if (savedTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeButton.textContent = '☀️';
+                }
+
+                var savedLang = localStorage.getItem('language');
+                if (savedLang && (savedLang === 'pt' || savedLang === 'en')) {
+                    currentLang = savedLang;
+                    document.body.className = document.body.className.replace(/lang-\w+/, 'lang-' + currentLang);
+                    document.getElementById('lang-toggle').textContent = currentLang.toUpperCase();
+                    updateLanguage();
+                }
+            } catch(e) {
+                console.log('LocalStorage not available');
+            }
+        }
+
+        // Calculator variables
+        var waterSlider, cleaningSlider, repairSlider;
+        var waterValue, cleaningValue, repairValue;
+        var totalSavings, currentCost, monthlySavingsHighlight, annualSavingsHighlight;
+        var salusMonthlyCost = 75;
+        var salusAnnualMaintenance = 96;
+
+        // Initialize calculator elements
+        function initCalculator() {
+            waterSlider = document.getElementById('water-expense');
+            cleaningSlider = document.getElementById('cleaning-expense');
+            repairSlider = document.getElementById('repair-expense');
+            waterValue = document.getElementById('water-value');
+            cleaningValue = document.getElementById('cleaning-value');
+            repairValue = document.getElementById('repair-value');
+            totalSavings = document.getElementById('total-savings');
+            currentCost = document.getElementById('current-cost');
+            monthlySavingsHighlight = document.getElementById('monthly-savings-highlight');
+            annualSavingsHighlight = document.getElementById('annual-savings-highlight');
+
+            // Add event listeners
+            waterSlider.addEventListener('input', handleSliderChange);
+            waterSlider.addEventListener('change', handleSliderChange);
+            cleaningSlider.addEventListener('input', handleSliderChange);
+            cleaningSlider.addEventListener('change', handleSliderChange);
+            repairSlider.addEventListener('input', handleSliderChange);
+            repairSlider.addEventListener('change', handleSliderChange);
+
+            // Initial calculation
+            updateDisplay();
+            calculate();
+            window.calculatorInitialized = true;
+        }
+
+        function handleSliderChange() {
+            updateDisplay();
+            calculate();
+        }
+
+        function updateDisplay() {
+            var waterVal = parseInt(waterSlider.value);
+            var cleaningVal = parseInt(cleaningSlider.value);
+            var repairVal = parseInt(repairSlider.value);
+            
+            waterValue.textContent = '$' + waterVal.toLocaleString();
+            cleaningValue.textContent = '$' + cleaningVal.toLocaleString();
+            repairValue.textContent = '$' + repairVal.toLocaleString();
+        }
+
+        function calculate() {
+            var water = parseInt(waterSlider.value);
+            var cleaning = parseInt(cleaningSlider.value);
+            var repair = parseInt(repairSlider.value);
+
+            var currentAnnualCost = (water * 12) + (cleaning * 12) + repair;
+            var salusAnnualCost = (salusMonthlyCost * 12) + salusAnnualMaintenance;
+            var annualSavings = currentAnnualCost - salusAnnualCost;
+            var monthlySavings = annualSavings / 12;
+            var tenYearSavings = annualSavings * 10;
+
+            // Update values immediately for iPad Safari
+            totalSavings.textContent = '$' + Math.round(tenYearSavings).toLocaleString();
+            currentCost.textContent = '$' + Math.round(currentAnnualCost).toLocaleString();
+            monthlySavingsHighlight.textContent = '$' + Math.round(monthlySavings).toLocaleString();
+            annualSavingsHighlight.textContent = '$' + Math.round(annualSavings).toLocaleString();
+        }
+
+        // Simple initialization for iPad Safari
+        function initApp() {
+            try {
+                initPreferences();
+                initCalculator();
+                console.log('App initialized successfully');
+            } catch (error) {
+                console.log('Error initializing app:', error);
+                // Fallback - try again in 500ms
+                setTimeout(function() {
+                    try {
+                        initCalculator();
+                    } catch (e) {
+                        console.log('Fallback initialization failed');
+                    }
+                }, 500);
+            }
+        }
+
+        // Multiple ways to ensure initialization for iPad Safari
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+        // Backup initialization
+        window.addEventListener('load', function() {
+            setTimeout(initApp, 100);
+        });
+
+        // Emergency fallback - direct inline execution after short delay
+        setTimeout(function() {
+            if (!window.calculatorInitialized) {
+                try {
+                    var ws = document.getElementById('water-expense');
+                    var cs = document.getElementById('cleaning-expense');
+                    var rs = document.getElementById('repair-expense');
+                    
+                    if (ws && cs && rs) {
+                        ws.addEventListener('input', function() {
+                            var w = parseInt(ws.value);
+                            var c = parseInt(cs.value);
+                            var r = parseInt(rs.value);
+                            
+                            document.getElementById('water-value').textContent = '$' + w;
+                            document.getElementById('cleaning-value').textContent = '$' + c;
+                            document.getElementById('repair-value').textContent = '$' + r;
+                            
+                            var annual = (w * 12) + (c * 12) + r;
+                            var savings = annual - (75 * 12 + 96);
+                            var tenYear = savings * 10;
+                            
+                            document.getElementById('total-savings').textContent = '$' + Math.round(tenYear).toLocaleString();
+                            document.getElementById('current-cost').textContent = '$' + Math.round(annual).toLocaleString();
+                            document.getElementById('monthly-savings-highlight').textContent = '$' + Math.round(savings/12).toLocaleString();
+                            document.getElementById('annual-savings-highlight').textContent = '$' + Math.round(savings).toLocaleString();
+                        });
+                        
+                        cs.addEventListener('input', function() {
+                            ws.dispatchEvent(new Event('input'));
+                        });
+                        
+                        rs.addEventListener('input', function() {
+                            ws.dispatchEvent(new Event('input'));
+                        });
+                        
+                        // Initial calculation
+                        ws.dispatchEvent(new Event('input'));
+                        window.calculatorInitialized = true;
+                        console.log('Emergency fallback initialized');
+                    }
+                } catch(e) {
+                    console.log('Emergency fallback failed:', e);
+                }
+            }
+        }, 1000);
+
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Add to home screen prompt for iOS
+        var deferredPrompt;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show custom install button (optional)
+            console.log('App can be installed');
+        });
+    </script>
+</body>
+</html>
