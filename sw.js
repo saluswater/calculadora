@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salus-calculator-v2';
+const CACHE_NAME = 'salus-calculator-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -23,6 +23,10 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
+        // For HTML files, always try network first to get updates
+        if (event.request.destination === 'document') {
+          return fetch(event.request).catch(() => response);
+        }
         // Return cached version or fetch from network
         return response || fetch(event.request);
       }
