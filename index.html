@@ -821,7 +821,7 @@
     <div class="app">
         <header class="controls">
             <button class="control-button" onclick="toggleLanguage()" aria-label="Toggle language" id="lang-toggle">
-                PT
+                EN
             </button>
             <button class="control-button" onclick="toggleTheme()" aria-label="Toggle theme" id="theme-toggle">
                 🌙
@@ -874,39 +874,56 @@
                             <div class="slider-value" id="repair-value">$1,200</div>
                         </div>
                     </div>
+
+                    <div class="input-group">
+                        <label class="input-label" id="label-salus">Custo mensal do sistema SALUS</label>
+                        <div class="slider-container">
+                            <input type="range" 
+                                class="slider" 
+                                min="100" 
+                                max="140" 
+                                value="120" 
+                                id="salus-monthly">
+                            <div class="slider-value" id="salus-value">$120</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="results-panel">
                     <h3 class="results-title" id="results-title">Economia em 10 Anos</h3>
                     
                     <div class="savings-display">
-                        <div class="savings-amount" id="total-savings">$56,040</div>
+                        <div class="savings-amount" id="total-savings"></div>
                         <div class="savings-period" id="savings-period">Total Economizado</div>
                     </div>
 
                     <div class="savings-highlights">
                         <div class="savings-card monthly-highlight">
-                            <div class="savings-card-value" id="monthly-savings-highlight">$467</div>
+                            <div class="savings-card-value" id="monthly-savings-highlight"></div>
                             <div class="savings-card-label" id="monthly-label">Por Mês</div>
                         </div>
                         <div class="savings-card">
-                            <div class="savings-card-value" id="annual-savings-highlight">$5,604</div>
+                            <div class="savings-card-value" id="annual-savings-highlight"></div>
                             <div class="savings-card-label" id="annual-label">Por Ano</div>
                         </div>
                     </div>
 
                     <div class="breakdown">
                         <div class="breakdown-item">
-                            <span class="breakdown-label" id="label-current">Custo anual atual:</span>
-                            <span class="breakdown-value" id="current-cost">$6,040</span>
+                            <span class="breakdown-label" id="label-current-annual">Seu gasto anual atual:</span>
+                            <span class="breakdown-value" id="current-cost-annual"></span>
                         </div>
                         <div class="breakdown-item">
-                            <span class="breakdown-label" id="label-salus">Sistema SALUS:</span>
-                            <span class="breakdown-value" id="salus-cost">$75/mês</span>
+                            <span class="breakdown-label" id="label-current-10years">Seu gasto em 10 anos:</span>
+                            <span class="breakdown-value" id="current-cost-10years"></span>
                         </div>
                         <div class="breakdown-item">
-                            <span class="breakdown-label" id="label-maintenance">Manutenção anual:</span>
-                            <span class="breakdown-value">$96/ano</span>
+                            <span class="breakdown-label" id="label-salus-annual">Com SALUS anual:</span>
+                            <span class="breakdown-value" id="salus-cost-annual"></span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label" id="label-salus-10years">Com SALUS em 10 anos:</span>
+                            <span class="breakdown-value" id="salus-cost-10years"></span>
                         </div>
                     </div>
                 </div>
@@ -922,28 +939,30 @@
                 labelWater: 'Gasto mensal com água engarrafada',
                 labelCleaning: 'Produtos de limpeza mensais',
                 labelRepair: 'Consertos anuais de eletrodomésticos',
+                labelSalus: 'Custo mensal do sistema SALUS',
                 resultsTitle: 'Economia em 10 Anos',
                 savingsPeriod: 'Total Economizado',
                 monthlyLabel: 'Por Mês',
                 annualLabel: 'Por Ano',
-                labelCurrent: 'Custo anual atual:',
-                labelSalus: 'Sistema SALUS:',
-                labelMaintenance: 'Manutenção anual:',
-                salusCost: '$75/mês'
+                labelCurrentAnnual: 'Seu gasto anual atual:',
+                labelCurrent10years: 'Seu gasto em 10 anos:',
+                labelSalusAnnual: 'Com SALUS anual:',
+                labelSalus10years: 'Com SALUS em 10 anos:'
             },
             'en': {
                 tagline: 'Water Purification Technology',
                 labelWater: 'Monthly Bottled Water Expense',
                 labelCleaning: 'Monthly Cleaning Products',
                 labelRepair: 'Annual Appliance Repairs',
+                labelSalus: 'Monthly SALUS System Cost',
                 resultsTitle: '10-Year Savings',
                 savingsPeriod: 'Total Saved',
                 monthlyLabel: 'Per Month',
                 annualLabel: 'Per Year',
-                labelCurrent: 'Current Annual Cost:',
-                labelSalus: 'SALUS System:',
-                labelMaintenance: 'Annual Maintenance:',
-                salusCost: '$75/month'
+                labelCurrentAnnual: 'Your current annual cost:',
+                labelCurrent10years: 'Your cost in 10 years:',
+                labelSalusAnnual: 'With SALUS annual:',
+                labelSalus10years: 'With SALUS in 10 years:'
             }
         };
 
@@ -976,7 +995,8 @@
             var langButton = document.getElementById('lang-toggle');
             
             body.className = body.className.replace(/lang-\w+/, 'lang-' + currentLang);
-            langButton.textContent = currentLang.toUpperCase();
+            // Botão mostra o idioma disponível para mudança, não o atual
+            langButton.textContent = currentLang === 'pt' ? 'EN' : 'PT';
             
             updateLanguage();
             try {
@@ -991,14 +1011,15 @@
             document.getElementById('label-water').textContent = t.labelWater;
             document.getElementById('label-cleaning').textContent = t.labelCleaning;
             document.getElementById('label-repair').textContent = t.labelRepair;
+            document.getElementById('label-salus').textContent = t.labelSalus;
             document.getElementById('results-title').textContent = t.resultsTitle;
             document.getElementById('savings-period').textContent = t.savingsPeriod;
             document.getElementById('monthly-label').textContent = t.monthlyLabel;
             document.getElementById('annual-label').textContent = t.annualLabel;
-            document.getElementById('label-current').textContent = t.labelCurrent;
-            document.getElementById('label-salus').textContent = t.labelSalus;
-            document.getElementById('label-maintenance').textContent = t.labelMaintenance;
-            document.getElementById('salus-cost').textContent = t.salusCost;
+            document.getElementById('label-current-annual').textContent = t.labelCurrentAnnual;
+            document.getElementById('label-current-10years').textContent = t.labelCurrent10years;
+            document.getElementById('label-salus-annual').textContent = t.labelSalusAnnual;
+            document.getElementById('label-salus-10years').textContent = t.labelSalus10years;
         }
 
         // Initialize saved preferences - Simple function
@@ -1016,158 +1037,93 @@
                 if (savedLang && (savedLang === 'pt' || savedLang === 'en')) {
                     currentLang = savedLang;
                     document.body.className = document.body.className.replace(/lang-\w+/, 'lang-' + currentLang);
-                    document.getElementById('lang-toggle').textContent = currentLang.toUpperCase();
+                    // Botão mostra o idioma disponível para mudança, não o atual
+                    document.getElementById('lang-toggle').textContent = currentLang === 'pt' ? 'EN' : 'PT';
                     updateLanguage();
+                } else {
+                    // Inicialização padrão - começa em PT, botão mostra EN
+                    document.getElementById('lang-toggle').textContent = 'EN';
                 }
             } catch(e) {
                 console.log('LocalStorage not available');
             }
         }
 
-        // Calculator variables
-        var waterSlider, cleaningSlider, repairSlider;
-        var waterValue, cleaningValue, repairValue;
-        var totalSavings, currentCost, monthlySavingsHighlight, annualSavingsHighlight;
-        var salusMonthlyCost = 75;
-        var salusAnnualMaintenance = 96;
+        // ------- util -------
+        const fmtUSD0 = n => n.toLocaleString('en-US', { style:'currency', currency:'USD', maximumFractionDigits:0 });
 
-        // Initialize calculator elements
-        function initCalculator() {
-            waterSlider = document.getElementById('water-expense');
-            cleaningSlider = document.getElementById('cleaning-expense');
-            repairSlider = document.getElementById('repair-expense');
-            waterValue = document.getElementById('water-value');
-            cleaningValue = document.getElementById('cleaning-value');
-            repairValue = document.getElementById('repair-value');
-            totalSavings = document.getElementById('total-savings');
-            currentCost = document.getElementById('current-cost');
-            monthlySavingsHighlight = document.getElementById('monthly-savings-highlight');
-            annualSavingsHighlight = document.getElementById('annual-savings-highlight');
+        // ------- estado -------
+        let booted = false;
+        const maint = 96;
 
-            // Add event listeners
-            waterSlider.addEventListener('input', handleSliderChange);
-            waterSlider.addEventListener('change', handleSliderChange);
-            cleaningSlider.addEventListener('input', handleSliderChange);
-            cleaningSlider.addEventListener('change', handleSliderChange);
-            repairSlider.addEventListener('input', handleSliderChange);
-            repairSlider.addEventListener('change', handleSliderChange);
-
-            // Initial calculation
-            updateDisplay();
-            calculate();
-            window.calculatorInitialized = true;
+        // ------- cálculo -------
+        function compute(w, c, r, salusMonthly){
+            const currentAnnual = w*12 + c*12 + r;
+            const salusAnnual  = salusMonthly*12 + maint;
+            const annualSavings = currentAnnual - salusAnnual;
+            return {
+                currentAnnual,
+                salusAnnual,
+                annualSavings,
+                monthlySavings: annualSavings/12,
+                tenYearSavings: annualSavings*10
+            };
         }
 
-        function handleSliderChange() {
-            updateDisplay();
-            calculate();
-        }
+        function render() {
+            const w = +document.getElementById('water-expense').value;
+            const c = +document.getElementById('cleaning-expense').value;
+            const r = +document.getElementById('repair-expense').value;
+            const s = +document.getElementById('salus-monthly').value;
 
-        function updateDisplay() {
-            var waterVal = parseInt(waterSlider.value);
-            var cleaningVal = parseInt(cleaningSlider.value);
-            var repairVal = parseInt(repairSlider.value);
-            
-            waterValue.textContent = '$' + waterVal.toLocaleString();
-            cleaningValue.textContent = '$' + cleaningVal.toLocaleString();
-            repairValue.textContent = '$' + repairVal.toLocaleString();
-        }
+            const res = compute(w,c,r,s);
 
-        function calculate() {
-            var water = parseInt(waterSlider.value);
-            var cleaning = parseInt(cleaningSlider.value);
-            var repair = parseInt(repairSlider.value);
+            // clamp visual para UX
+            const posYear  = Math.max(res.annualSavings, 0);
+            const posMonth = Math.max(res.monthlySavings, 0);
+            const posTen   = Math.max(res.tenYearSavings, 0);
 
-            var currentAnnualCost = (water * 12) + (cleaning * 12) + repair;
-            var salusAnnualCost = (salusMonthlyCost * 12) + salusAnnualMaintenance;
-            var annualSavings = currentAnnualCost - salusAnnualCost;
-            var monthlySavings = annualSavings / 12;
-            var tenYearSavings = annualSavings * 10;
+            // Valores principais de economia (mantém em destaque)
+            document.getElementById('annual-savings-highlight').textContent  = fmtUSD0(posYear);
+            document.getElementById('monthly-savings-highlight').textContent = fmtUSD0(posMonth);
+            document.getElementById('total-savings').textContent             = fmtUSD0(posTen);
 
-            // Update values immediately for iPad Safari
-            totalSavings.textContent = '$' + Math.round(tenYearSavings).toLocaleString();
-            currentCost.textContent = '$' + Math.round(currentAnnualCost).toLocaleString();
-            monthlySavingsHighlight.textContent = '$' + Math.round(monthlySavings).toLocaleString();
-            annualSavingsHighlight.textContent = '$' + Math.round(annualSavings).toLocaleString();
-        }
+            // Breakdown detalhado
+            document.getElementById('current-cost-annual').textContent = fmtUSD0(res.currentAnnual);
+            document.getElementById('current-cost-10years').textContent = fmtUSD0(res.currentAnnual * 10);
+            document.getElementById('salus-cost-annual').textContent = fmtUSD0(res.salusAnnual);
+            document.getElementById('salus-cost-10years').textContent = fmtUSD0(res.salusAnnual * 10);
 
-        // Simple initialization for iPad Safari
-        function initApp() {
-            try {
-                initPreferences();
-                initCalculator();
-                console.log('App initialized successfully');
-            } catch (error) {
-                console.log('Error initializing app:', error);
-                // Fallback - try again in 500ms
-                setTimeout(function() {
-                    try {
-                        initCalculator();
-                    } catch (e) {
-                        console.log('Fallback initialization failed');
-                    }
-                }, 500);
+            // se negativo, explique
+            if (res.annualSavings < 0) {
+                document.getElementById('savings-period').textContent = 'Custo adicional em 10 anos';
+            } else {
+                document.getElementById('savings-period').textContent = 'Total Economizado';
             }
         }
 
-        // Multiple ways to ensure initialization for iPad Safari
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
+        function wire(){
+            ['water-expense','cleaning-expense','repair-expense','salus-monthly']
+                .forEach(id => document.getElementById(id).addEventListener('input', () => {
+                    // atualiza os valores visuais dos sliders
+                    if (id==='water-expense')   document.getElementById('water-value').textContent   = fmtUSD0(+document.getElementById('water-expense').value).replace('.00','');
+                    if (id==='cleaning-expense')document.getElementById('cleaning-value').textContent= fmtUSD0(+document.getElementById('cleaning-expense').value).replace('.00','');
+                    if (id==='repair-expense')  document.getElementById('repair-value').textContent  = fmtUSD0(+document.getElementById('repair-expense').value).replace('.00','');
+                    if (id==='salus-monthly')   document.getElementById('salus-value').textContent   = fmtUSD0(+document.getElementById('salus-monthly').value).replace('.00','');
+                    render();
+                }));
         }
 
-        // Backup initialization
-        window.addEventListener('load', function() {
-            setTimeout(initApp, 100);
-        });
+        function initOnce(){
+            if (booted) return;
+            booted = true;
+            wire();
+            render();
+        }
 
-        // Emergency fallback - direct inline execution after short delay
-        setTimeout(function() {
-            if (!window.calculatorInitialized) {
-                try {
-                    var ws = document.getElementById('water-expense');
-                    var cs = document.getElementById('cleaning-expense');
-                    var rs = document.getElementById('repair-expense');
-                    
-                    if (ws && cs && rs) {
-                        ws.addEventListener('input', function() {
-                            var w = parseInt(ws.value);
-                            var c = parseInt(cs.value);
-                            var r = parseInt(rs.value);
-                            
-                            document.getElementById('water-value').textContent = '$' + w;
-                            document.getElementById('cleaning-value').textContent = '$' + c;
-                            document.getElementById('repair-value').textContent = '$' + r;
-                            
-                            var annual = (w * 12) + (c * 12) + r;
-                            var savings = annual - (75 * 12 + 96);
-                            var tenYear = savings * 10;
-                            
-                            document.getElementById('total-savings').textContent = '$' + Math.round(tenYear).toLocaleString();
-                            document.getElementById('current-cost').textContent = '$' + Math.round(annual).toLocaleString();
-                            document.getElementById('monthly-savings-highlight').textContent = '$' + Math.round(savings/12).toLocaleString();
-                            document.getElementById('annual-savings-highlight').textContent = '$' + Math.round(savings).toLocaleString();
-                        });
-                        
-                        cs.addEventListener('input', function() {
-                            ws.dispatchEvent(new Event('input'));
-                        });
-                        
-                        rs.addEventListener('input', function() {
-                            ws.dispatchEvent(new Event('input'));
-                        });
-                        
-                        // Initial calculation
-                        ws.dispatchEvent(new Event('input'));
-                        window.calculatorInitialized = true;
-                        console.log('Emergency fallback initialized');
-                    }
-                } catch(e) {
-                    console.log('Emergency fallback failed:', e);
-                }
-            }
-        }, 1000);
+        // inicialização estável (uma vez só)
+        document.addEventListener('DOMContentLoaded', initOnce);
+        window.addEventListener('load', initOnce);
 
         // Register Service Worker for PWA functionality
         if ('serviceWorker' in navigator) {

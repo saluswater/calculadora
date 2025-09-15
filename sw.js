@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salus-calculator-v1';
+const CACHE_NAME = 'salus-calculator-v2';
 const urlsToCache = [
   './',
   './index.html',
